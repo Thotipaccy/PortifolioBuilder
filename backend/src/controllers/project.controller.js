@@ -1,5 +1,29 @@
 import prisma from '../db.js';
 
+// @desc    Get all projects for the current user's portfolio
+// @route   GET /api/projects
+// @access  Private
+export const getProjects = async (req, res) => {
+  try {
+    const portfolio = await prisma.portfolio.findUnique({
+      where: { userId: req.user.id }
+    });
+
+    if (!portfolio) {
+      return res.status(404).json({ message: 'Portfolio not found' });
+    }
+
+    const projects = await prisma.project.findMany({
+      where: { portfolioId: portfolio.id },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error fetching projects' });
+  }
+};
+
 // @desc    Add project to portfolio
 // @route   POST /api/projects
 // @access  Private

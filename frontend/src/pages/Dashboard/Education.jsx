@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Form, Modal, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { Card, Table, Button, Form, Modal, Alert, Spinner, Row, Col, Badge } from 'react-bootstrap';
+import { 
+  GraduationCap, 
+  Plus, 
+  Edit3, 
+  Trash2, 
+  Calendar, 
+  BookOpen, 
+  Building,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
 import api from '../../services/api';
 
 const Education = () => {
@@ -70,90 +81,201 @@ const Education = () => {
   if (loading) return <Spinner animation="border" />;
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>Education History</h3>
-        <Button variant="primary" onClick={() => { resetForm(); setShowModal(true); }}>
-          Add Education
+    <div className="education-dashboard animate-fade-in">
+      <div className="d-flex justify-content-between align-items-center mb-5">
+        <div>
+          <h3 className="fw-bold mb-1">Academic Background</h3>
+          <p className="text-muted small mb-0">Record your degrees, certifications, and educational milestones</p>
+        </div>
+        <Button 
+          variant="primary" 
+          className="d-flex align-items-center gap-2 px-4 py-2 rounded-3 shadow-sm" 
+          onClick={() => { resetForm(); setShowModal(true); }}
+        >
+          <Plus size={20} />
+          <span>Add Education</span>
         </Button>
       </div>
 
-      {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
+      {error && <Alert variant="danger" className="d-flex align-items-center gap-2 border-0 shadow-sm mb-4" onClose={() => setError(null)} dismissible><AlertCircle size={18} /> {error}</Alert>}
 
-      <Card className="shadow-sm">
-        <Card.Body>
-          <Table responsive hover>
-            <thead>
-              <tr>
-                <th>Institution</th>
-                <th>Degree</th>
-                <th>Dates</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {educations.map(edu => (
-                <tr key={edu.id}>
-                  <td>{edu.institution}</td>
-                  <td>{edu.degree}</td>
-                  <td>{new Date(edu.startDate).getFullYear()} - {edu.endDate ? new Date(edu.endDate).getFullYear() : 'Present'}</td>
-                  <td>
-                    <Button variant="outline-primary" size="sm" className="me-2" onClick={() => { 
-                      setEditingEdu(edu); 
-                      setFormData({
-                        institution: edu.institution,
-                        degree: edu.degree,
-                        fieldOfStudy: edu.fieldOfStudy || '',
-                        startDate: edu.startDate ? edu.startDate.split('T')[0] : '',
-                        endDate: edu.endDate ? edu.endDate.split('T')[0] : ''
-                      }); 
-                      setShowModal(true); 
-                    }}>Edit</Button>
-                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(edu.id)}>Delete</Button>
-                  </td>
+      <Card className="shadow-sm border-0 rounded-4 overflow-hidden">
+        <Card.Body className="p-0">
+          {educations.length === 0 ? (
+            <div className="text-center py-5 my-5">
+              <GraduationCap size={48} className="text-light mb-3" />
+              <h5 className="text-muted">No academic records</h5>
+              <p className="text-muted small">Add your university or online course certifications here</p>
+            </div>
+          ) : (
+            <Table responsive hover className="mb-0 align-middle custom-table">
+              <thead className="bg-light">
+                <tr>
+                  <th className="px-4 py-3 border-0 text-uppercase small text-muted fw-bold">Institution & Degree</th>
+                  <th className="py-3 border-0 text-uppercase small text-muted fw-bold">Period</th>
+                  <th className="py-3 border-0 text-uppercase small text-muted fw-bold">Field of Study</th>
+                  <th className="px-4 py-3 border-0 text-uppercase small text-muted fw-bold text-end">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {educations.map((edu) => (
+                  <tr key={edu.id} className="transition-all">
+                    <td className="px-4 py-3">
+                      <div className="fw-bold text-dark d-flex align-items-center gap-2">
+                        <Building size={14} className="text-primary" />
+                        {edu.institution}
+                      </div>
+                      <div className="text-secondary small">{edu.degree}</div>
+                    </td>
+                    <td className="py-3">
+                      <div className="d-flex align-items-center gap-2 small text-secondary fw-medium">
+                        <Calendar size={14} className="text-muted" />
+                        <span>
+                          {new Date(edu.startDate).getFullYear()}
+                          {' - '}
+                          {edu.endDate ? new Date(edu.endDate).getFullYear() : <Badge bg="success-light" text="success" className="fw-medium border-success border opacity-75">Present</Badge>}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      {edu.fieldOfStudy && (
+                        <Badge bg="light" text="primary" className="border fw-normal px-2 py-1" style={{ fontSize: '11px' }}>
+                          {edu.fieldOfStudy}
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-end">
+                      <div className="d-flex justify-content-end gap-2">
+                        <Button 
+                          variant="light" 
+                          size="sm" 
+                          className="p-2 rounded-3 text-primary" 
+                          onClick={() => { 
+                            setEditingEdu(edu); 
+                            setFormData({
+                              institution: edu.institution,
+                              degree: edu.degree,
+                              fieldOfStudy: edu.fieldOfStudy || '',
+                              startDate: edu.startDate ? edu.startDate.split('T')[0] : '',
+                              endDate: edu.endDate ? edu.endDate.split('T')[0] : ''
+                            }); 
+                            setShowModal(true); 
+                          }}
+                          title="Edit degree"
+                        >
+                          <Edit3 size={16} />
+                        </Button>
+                        <Button 
+                          variant="light" 
+                          size="sm" 
+                          className="p-2 rounded-3 text-danger" 
+                          onClick={() => handleDelete(edu.id)}
+                          title="Remove degree"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </Card.Body>
       </Card>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>{editingEdu ? 'Edit' : 'Add'} Education</Modal.Title>
+      <Modal show={showModal} onHide={() => { setShowModal(false); resetForm(); }} centered className="premium-modal">
+        <Modal.Header closeButton className="border-0 px-4 pt-4">
+          <div className="d-flex align-items-center gap-2">
+            <div className={`p-2 rounded-3 ${editingEdu ? 'bg-primary-light text-primary' : 'bg-success-light text-success'}`}>
+              <GraduationCap size={20} />
+            </div>
+            <Modal.Title className="fw-bold">{editingEdu ? 'Refine Education' : 'Academic Entry'}</Modal.Title>
+          </div>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Institution</Form.Label>
-              <Form.Control required type="text" value={formData.institution} onChange={e => setFormData({...formData, institution: e.target.value})} />
+          <Modal.Body className="px-4">
+            <Form.Group className="mb-4">
+              <Form.Label className="small fw-semibold text-secondary mb-2">Institution / University</Form.Label>
+              <div className="input-group overflow-hidden rounded-3 shadow-sm border-0">
+                <span className="input-group-text bg-light border-0"><Building size={16} className="text-muted" /></span>
+                <Form.Control 
+                  type="text" 
+                  required 
+                  placeholder="e.g. Stanford University, MIT"
+                  value={formData.institution} 
+                  onChange={e => setFormData({...formData, institution: e.target.value})} 
+                  className="py-2 px-3 border-0 bg-light"
+                />
+              </div>
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Degree</Form.Label>
-              <Form.Control required type="text" value={formData.degree} onChange={e => setFormData({...formData, degree: e.target.value})} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Field of Study</Form.Label>
-              <Form.Control type="text" value={formData.fieldOfStudy} onChange={e => setFormData({...formData, fieldOfStudy: e.target.value})} />
-            </Form.Group>
+
             <Row>
               <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Start Date</Form.Label>
-                  <Form.Control required type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} />
+                <Form.Group className="mb-4">
+                  <Form.Label className="small fw-semibold text-secondary mb-2">Degree / Qualification</Form.Label>
+                  <div className="input-group overflow-hidden rounded-3 shadow-sm border-0">
+                    <span className="input-group-text bg-light border-0"><GraduationCap size={16} className="text-muted" /></span>
+                    <Form.Control 
+                      type="text" 
+                      required 
+                      placeholder="e.g. Bachelor of Science"
+                      value={formData.degree} 
+                      onChange={e => setFormData({...formData, degree: e.target.value})} 
+                      className="py-2 px-3 border-0 bg-light"
+                    />
+                  </div>
                 </Form.Group>
               </Col>
               <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>End Date (optional)</Form.Label>
-                  <Form.Control type="date" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} />
+                <Form.Group className="mb-4">
+                  <Form.Label className="small fw-semibold text-secondary mb-2">Field of Study</Form.Label>
+                  <div className="input-group overflow-hidden rounded-3 shadow-sm border-0">
+                    <span className="input-group-text bg-light border-0"><BookOpen size={16} className="text-muted" /></span>
+                    <Form.Control 
+                      type="text" 
+                      placeholder="e.g. Computer Science"
+                      value={formData.fieldOfStudy} 
+                      onChange={e => setFormData({...formData, fieldOfStudy: e.target.value})} 
+                      className="py-2 px-3 border-0 bg-light"
+                    />
+                  </div>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-4">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold text-secondary mb-2">Start Date</Form.Label>
+                  <Form.Control 
+                    required 
+                    type="date" 
+                    value={formData.startDate} 
+                    onChange={e => setFormData({...formData, startDate: e.target.value})} 
+                    className="py-2 px-3 border-0 shadow-sm bg-light rounded-3"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold text-secondary mb-2">End Date (or blank)</Form.Label>
+                  <Form.Control 
+                    type="date" 
+                    value={formData.endDate} 
+                    onChange={e => setFormData({...formData, endDate: e.target.value})} 
+                    className="py-2 px-3 border-0 shadow-sm bg-light rounded-3"
+                  />
                 </Form.Group>
               </Col>
             </Row>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-            <Button variant="primary" type="submit">Save</Button>
+          <Modal.Footer className="border-0 px-4 pb-4 pt-0">
+            <Button variant="light" className="px-4 py-2 rounded-3 text-secondary" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</Button>
+            <Button variant="primary" type="submit" className="px-5 py-2 rounded-3 shadow-sm d-flex align-items-center gap-2">
+              <CheckCircle2 size={18} />
+              Save Record
+            </Button>
           </Modal.Footer>
         </Form>
       </Modal>
